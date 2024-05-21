@@ -25,7 +25,7 @@ func main() {
 	router := gin.Default()
 	routers.Load(router)
 
-	router.Run()
+	router.Run("localhost:9090")
 	// if err := router.Run("localhost:8080"); err != nil {
 	// 	fmt.Println("router hata:", err)
 	// } else {
