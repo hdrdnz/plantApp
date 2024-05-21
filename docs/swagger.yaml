@@ -1,0 +1,190 @@
+definitions:
+  controllers.LoginResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  controllers.Register:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  controllers.UserLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  models.Rose:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nickName:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: https://leaflove.com.tr
+info:
+  contact: {}
+  description: This is plantapp
+  title: Leaflove Mobil API
+  version: "1.0"
+paths:
+  /mobil/rose:
+    get:
+      consumes:
+      - application/json
+      description: Get Rose List
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Rose'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get Rose List
+      tags:
+      - rose
+  /mobil/user:
+    get:
+      consumes:
+      - application/json
+      description: Get Uset Information by id or nickname
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      - description: User Nickname
+        in: query
+        name: nick_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get User Information
+      tags:
+      - user
+  /mobil/user/create:
+    post:
+      consumes:
+      - application/json
+      description: Create User
+      parameters:
+      - description: Create user
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.Register'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success" "example:Success
+          schema:
+            type: string
+      summary: User Create
+      tags:
+      - user
+  /mobil/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login User
+      parameters:
+      - description: Login user
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: User Login
+      tags:
+      - user
+  /mobil/user/logout:
+    get:
+      consumes:
+      - application/json
+      description: Logout User
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: User Logout
+      tags:
+      - user
+swagger: "2.0"
