@@ -11,7 +11,7 @@ import (
 func Load(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, ginSwagger.URL("/getdocs")))
 	router.GET("/getdocs", controllers.GetDocs)
-	router.GET("/deneme", controllers.GetImage)
+	router.GET("/deneme", controllers.RequireAuth(), controllers.GetImage)
 	mobil := router.Group("/mobil")
 	{
 		mobil.POST("/user/create", controllers.UserRegister)
@@ -20,6 +20,7 @@ func Load(router *gin.Engine) {
 		{
 			mobil.GET("/user/logout", controllers.Logout)
 			mobil.GET("/user", controllers.GetUserById)
+			mobil.GET("/myplants", controllers.MyPlants)
 			mobil.GET("/rose", controllers.Rose)
 			mobil.GET("/leaf", controllers.Leaf)
 			mobil.GET("/plants", controllers.GetPlant)

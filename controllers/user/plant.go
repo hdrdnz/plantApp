@@ -7,9 +7,11 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -30,10 +32,36 @@ type PlantResult struct {
 }
 
 func GetPlant(c *gin.Context) {
-	image := c.PostForm("image_url")
+	//fotoğraf alma
+	imageURL := c.Query("image_url")
+	//resim indirme
+	i_response, err := http.Get(imageURL)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to download image",
+		})
+	}
+	defer i_response.Body.Close()
+	//hedef dosya
+	file, err := os.Create("image.jpg")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to create file",
+		})
+	}
+	defer file.Close()
+
+	// Response body'den dosyaya veri kopyala
+	_, err = io.Copy(file, i_response.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to save image",
+		})
+	}
 	api_key := "xtiSqLrecnZPeGCZtRS6"
 	model_endpoint := "plant_detector-ggbfz/1"
-	f, err := os.Open(image)
+	//fotoğr
+	f, err := os.Open("image.jpg")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 	}
@@ -41,7 +69,7 @@ func GetPlant(c *gin.Context) {
 	content, _ := ioutil.ReadAll(reader)
 	// Encode as base64.
 	data := base64.StdEncoding.EncodeToString(content)
-	uploadURL := "https://detect.roboflow.com/" + model_endpoint + "?api_key=" + api_key + "&name=bitki2.jpeg"
+	uploadURL := "https://detect.roboflow.com/" + model_endpoint + "?api_key=" + api_key + "&name=image.jpg"
 	req, _ := http.NewRequest("POST", uploadURL, strings.NewReader(data))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
@@ -56,9 +84,8 @@ func GetPlant(c *gin.Context) {
 		})
 		return
 	}
-
 	// 0 muz +
-	// 1 betel betelnut
+	// 1 betel betelnut+
 	// 2chinar
 	// 3coconut +
 	// 4corn
@@ -68,14 +95,15 @@ func GetPlant(c *gin.Context) {
 	// 8mango +
 	// 9tomato
 	fruits := map[string]int{
-		"banana":   0,
-		"betelnut": 1,
+		"Banana":   0,
+		"Betelnut": 1,
 		"chinar":   2,
-		"cocount":  3,
+		"Cocount":  3,
 		"corn":     4,
 		"grape":    5,
-		"kiwi":     6,
-		"lime":     7,
+		"Kiwi":     6,
+		"Lime":     7,
+		"Mango":    8,
 		"tomato":   9,
 	}
 	var plantName string
@@ -132,7 +160,6 @@ func GetPlant(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, plant.Result)
 	}
-
 }
 
 func GetDocs(c *gin.Context) {
@@ -144,30 +171,181 @@ func GetDocs(c *gin.Context) {
 }
 
 func GetImage(c *gin.Context) {
-	//image := c.PostForm("image")
-	api_key := "xtiSqLrecnZPeGCZtRS6"          // Your API Key
-	model_endpoint := "plant_detector-ggbfz/1" // Set model endpoint
-	// Open file on disk.    // gorsel ismi buraya girilecek
-	// Read entire JPG into byte slice.
+	//fotoğraf alma
+	imageURL := c.Query("image_url")
+	//resim indirme
+	i_response, err := http.Get(imageURL)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to download image",
+		})
+	}
+	defer i_response.Body.Close()
+	//hedef dosya
+	file, err := os.Create("image.jpg")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to create file",
+		})
+	}
+	defer file.Close()
 
-	//f, err := os.Open(image)
-	f, err := os.Open("bitki2.jpeg")
+	// Response body'den dosyaya veri kopyala
+	_, err = io.Copy(file, i_response.Body)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "Failed to save image",
+		})
+	}
+
+	api_key := "xtiSqLrecnZPeGCZtRS6"
+	model_endpoint := "plant_detector-ggbfz/1"
+	//fotoğrafı açma
+	f, err := os.Open("image.jpg")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 	}
 	reader := bufio.NewReader(f)
 	content, _ := ioutil.ReadAll(reader)
-	// Encode as base64.
+	//bitki ismi için istek atma
 	data := base64.StdEncoding.EncodeToString(content)
-	uploadURL := "https://detect.roboflow.com/" + model_endpoint + "?api_key=" + api_key + "&name=bitki.jpeg"
+	uploadURL := "https://detect.roboflow.com/" + model_endpoint + "?api_key=" + api_key + "&name=image.jpg"
 	req, _ := http.NewRequest("POST", uploadURL, strings.NewReader(data))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 	client := &http.Client{}
-	resp, _ := client.Do(req)
-	defer resp.Body.Close()
-	bytes, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(bytes))
-	c.JSON(http.StatusOK, string(bytes))
+	res, _ := client.Do(req)
+	defer res.Body.Close()
+	bytes, _ := ioutil.ReadAll(res.Body)
+	response := make(map[string]interface{})
+	//sonuç kısmının alınması
+	if err := json.Unmarshal([]byte(bytes), &response); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "something went wrong.",
+		})
+		return
+	}
+	predictions, ok := response["predictions"].([]interface{})
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "something went wrong.",
+		})
+		return
+	}
+	var ImageID float64
+	for _, prediction := range predictions {
+		predMap, ok := prediction.(map[string]interface{})
+		if !ok {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "something went wrong.",
+			})
+			return
+		}
+		ImageID = predMap["class_id"].(float64)
+	}
+	fruits := map[string]float64{
+		"Banana":   0,
+		"Betelnut": 1,
+		"chinar":   2,
+		"Cocount":  3,
+		"corn":     4,
+		"grape":    5,
+		"Kiwi":     6,
+		"Lime":     7,
+		"Mango":    8,
+		"tomato":   9,
+	}
+	//bitki isminin alınması
+	var plantName string
+	for item, value := range fruits {
+		if ImageID == value {
+			plantName = item
+		}
+	}
 
+	plantGet := models.Plant{}
+	plantUser := models.PlantUser{}
+	db := database.GetDB()
+	url := "https://www.tropicalfruitandveg.com/api/tfvjsonapi.php?tfvitem=" + plantName
+	respx, err := http.Get(url)
+	defer respx.Body.Close()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "something went wrong.",
+		})
+		return
+	}
+	var plant Plant
+	if err := json.NewDecoder(respx.Body).Decode(&plant); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "something went wrong.",
+		})
+		return
+	}
+	if plant.Test != 1 {
+		if err := db.Where("name=?", strings.ToLower(plantName)).First(&plantGet).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "something went wrong.",
+			})
+			return
+		}
+		plantUser.PlantId = plantGet.Id
+		plantUser.Image = imageURL
+		plantUser.Name = plantName
+		plantUser.UserId = uint(Claims["sub"].(float64))
+		if err := db.Save(&plantUser).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "something went wrong.",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, plantGet)
+	} else {
+		fmt.Println("***geldii")
+		plantUser.UserId = uint(Claims["sub"].(float64))
+		fmt.Println("çıkmtııı")
+		plantUser.Image = imageURL
+		plantUser.Name = plant.Result[0].Name
+		if err := db.Save(&plantUser).Error; err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": "something went wrong.",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, plant.Result)
+	}
+	// 0 muz +
+	// 1 betel betelnut+
+	// 2chinar
+	// 3coconut +
+	// 4corn
+	// 5grape
+	// 6kiwi +
+	// 7lime +
+	// 8mango +
+	// 9tomato
+	//c.JSON(http.StatusOK, string(bytes))
+
+}
+
+func MyPlants(c *gin.Context) {
+	userId := c.Query("user_id")
+	if userId == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user_id cannot be empty.",
+		})
+	}
+	if userId != strconv.Itoa(int(Claims["sub"].(float64))) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user not found.",
+		})
+	}
+	var plantUser []models.PlantUser
+	db := database.DB
+	if err := db.Where("user_id=?", userId).Preload("User").Preload("Plant").Find(&plantUser).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "something went wrong.",
+		})
+	}
+	c.JSON(http.StatusOK, plantUser)
 }

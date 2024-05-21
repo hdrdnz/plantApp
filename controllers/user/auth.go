@@ -4,6 +4,7 @@ import (
 	"PlantApp/database"
 	"PlantApp/models"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -79,6 +80,7 @@ func RequireAuth() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+			fmt.Println("------claims:", claims)
 			Claims = claims
 			c.Next()
 		} else {
