@@ -11,8 +11,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -198,8 +200,8 @@ func GetImage(c *gin.Context) {
 		})
 	}
 
-	api_key := "xtiSqLrecnZPeGCZtRS6"
-	model_endpoint := "plant_detector-ggbfz/1"
+	api_key := "Df2BDaC2337z7b2Z7tr5"
+	model_endpoint := "plant_detector-wknzm/1"
 	//fotoğrafı açma
 	f, err := os.Open("image.jpg")
 	if err != nil {
@@ -301,9 +303,7 @@ func GetImage(c *gin.Context) {
 		}
 		c.JSON(http.StatusOK, plantGet)
 	} else {
-		fmt.Println("***geldii")
 		plantUser.UserId = uint(Claims["sub"].(float64))
-		fmt.Println("çıkmtııı")
 		plantUser.Image = imageURL
 		plantUser.Name = plant.Result[0].Name
 		if err := db.Save(&plantUser).Error; err != nil {
@@ -348,4 +348,61 @@ func MyPlants(c *gin.Context) {
 		})
 	}
 	c.JSON(http.StatusOK, plantUser)
+}
+
+type ImageData struct {
+	ImageURL string `json:"image_url"`
+}
+
+func Images(c *gin.Context) {
+	var imageData ImageData
+	if err := c.ShouldBindJSON(&imageData); err != nil {
+		fmt.Println("hataaa:", err)
+		return
+	}
+	if imageData.ImageURL == "" {
+		fmt.Println("boş")
+		return
+
+	}
+
+	parts := strings.Split(imageData.ImageURL, ";base64,")
+	fmt.Println("parts:", parts[0])
+	if len(parts) != 2 {
+		fmt.Println("Invalid Base64 data format")
+		return
+	}
+
+	// MIME türünden uzantıyı belirle
+	var extension string
+	switch {
+	case strings.HasPrefix(parts[0], "data:image/png"):
+		extension = ".png"
+	case strings.HasPrefix(parts[0], "data:image/jpeg"):
+		extension = ".jpg"
+	default:
+		extension = ".bin" // Varsayılan olarak bin dosyası olarak kabul edin
+	}
+
+	data, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	// Dosya yolunu oluşturma
+	deneme := strconv.FormatInt(time.Now().UnixMilli(), 10)
+	filename := filepath.Base(deneme + extension)
+	filePath := filepath.Join("./images", filename)
+
+	// Dosyayı kaydetme
+	if err := ioutil.WriteFile(filePath, data, 0644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save image"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "BAşarılııı",
+	})
+
 }

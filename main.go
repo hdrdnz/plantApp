@@ -23,9 +23,10 @@ import (
 // @host      https://leaflove.com.tr
 func main() {
 	router := gin.Default()
+	router.Static("./images", "images")
 	routers.Load(router)
-
-	router.Run("localhost:9090")
+	router.Run()
+	//router.Run("localhost:9090")
 	// if err := router.Run("localhost:8080"); err != nil {
 	// 	fmt.Println("router hata:", err)
 	// } else {

@@ -11,7 +11,9 @@ import (
 func Load(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler, ginSwagger.URL("/getdocs")))
 	router.GET("/getdocs", controllers.GetDocs)
-	router.GET("/deneme", controllers.RequireAuth(), controllers.GetImage)
+	router.POST("/deneme", controllers.RequireAuth(), controllers.GetImage)
+	router.POST("/getimage", controllers.Images)
+
 	mobil := router.Group("/mobil")
 	{
 		mobil.POST("/user/create", controllers.UserRegister)

@@ -61,11 +61,9 @@ func Login(c *gin.Context) {
 		})
 		return
 	}
-	expirationTime := time.Now().Add(24 * time.Hour).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.Id,
 		"iat": time.Now().Unix(),
-		"exp": expirationTime,
 	})
 	tokenString, err := token.SignedString(GetSecret())
 	if err != nil {
