@@ -29,6 +29,17 @@ type UserToken struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
+type Favorites struct {
+	Id              uint `gorm:"primaryKey;autoIncrement"`
+	UserId          uint
+	RoseId          uint
+	GeneralPlantsId uint
+	User            User
+	GeneralPlants   GeneralPlants
+	Rose            Rose
+	CreatedAt       *time.Time
+	UpdatedAt       *time.Time
+}
 
 func init() {
 	db := database.GetDB()

@@ -13,6 +13,9 @@ func Load(router *gin.Engine) {
 	router.GET("/getdocs", controllers.GetDocs)
 	router.POST("/deneme", controllers.RequireAuth(), controllers.GetImage)
 	router.POST("/getimage", controllers.Images)
+	router.POST("/postplant", controllers.PostPlant)
+	router.POST("/post-fruits", controllers.GeneralPlant)
+	//router.GET("/favorites", controllers.GetFavorites)
 
 	mobil := router.Group("/mobil")
 	{
@@ -22,10 +25,15 @@ func Load(router *gin.Engine) {
 		{
 			mobil.GET("/user/logout", controllers.Logout)
 			mobil.GET("/user", controllers.GetUserById)
-			mobil.GET("/myplants", controllers.MyPlants)
+			//bitkilerim kısmı
+			mobil.GET("/plants", controllers.MyPlants)
+			//genel bilgi için
+			mobil.GET("/fruits", controllers.GetFruits)
+			//favoriler kısmı
+			mobil.GET("/favorites", controllers.GetFavorites)
 			mobil.GET("/rose", controllers.Rose)
 			mobil.GET("/leaf", controllers.Leaf)
-			mobil.GET("/plants", controllers.GetPlant)
+			mobil.GET("/plant", controllers.GetPlant)
 		}
 	}
 

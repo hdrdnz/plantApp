@@ -17,6 +17,14 @@ type Plant struct {
 	CreatedAt   *time.Time
 	UpdatedAt   *time.Time
 }
+type GeneralPlants struct {
+	Id          uint   `gorm:"primaryKey"`
+	Name        string `gorm:"size(256)"`
+	Image       string `gorm:"size(256)"`
+	Description string `gorm:"size(256)"`
+	CreatedAt   *time.Time
+	UpdatedAt   *time.Time
+}
 
 type PlantUser struct {
 	Id        uint `gorm:"primaryKey"`
@@ -41,5 +49,5 @@ type Rose struct {
 
 func init() {
 	db := database.GetDB()
-	db.AutoMigrate(&Plant{}, &Rose{}, &PlantUser{})
+	db.AutoMigrate(&GeneralPlants{}, &Plant{}, &Rose{}, &PlantUser{})
 }
