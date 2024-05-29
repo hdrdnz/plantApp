@@ -29,7 +29,7 @@ type UserToken struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 }
-type Favorites struct {
+type Favorite struct {
 	Id              uint `gorm:"primaryKey;autoIncrement"`
 	UserId          uint
 	RoseId          uint
@@ -43,5 +43,5 @@ type Favorites struct {
 
 func init() {
 	db := database.GetDB()
-	db.AutoMigrate(&User{}, &UserToken{})
+	db.AutoMigrate(&Favorite{}, &User{}, &UserToken{})
 }

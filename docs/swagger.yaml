@@ -1,4 +1,41 @@
 definitions:
+  PlantApp_controllers_user.Register:
+    properties:
+      email:
+        type: string
+      nickname:
+        type: string
+      password:
+        type: string
+    type: object
+  PlantApp_controllers_user.UserLogin:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  controllers.Fav:
+    properties:
+      general_plants_id:
+        type: integer
+      rose_id:
+        type: integer
+    type: object
+  controllers.ImageData:
+    properties:
+      image_url:
+        type: string
+    type: object
+  controllers.LRespAdmin:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
   controllers.LoginResponse:
     properties:
       message:
@@ -8,20 +45,105 @@ definitions:
       user:
         $ref: '#/definitions/models.User'
     type: object
-  controllers.Register:
+  controllers.MyFav:
     properties:
-      email:
+      description:
         type: string
-      nickname:
+      image:
         type: string
-      password:
+      name:
+        type: string
+      plantId:
+        type: integer
+    type: object
+  controllers.MyPlant:
+    properties:
+      image:
+        type: string
+      name:
+        type: string
+      plantUserId:
+        type: integer
+    type: object
+  controllers.PlantDetail:
+    properties:
+      climate:
+        type: string
+      description:
+        type: string
+      health:
+        type: string
+      name:
+        type: string
+      soil:
+        type: string
+      uses:
         type: string
     type: object
-  controllers.UserLogin:
+  controllers.PlantResult:
     properties:
-      password:
+      climate:
         type: string
-      username:
+      description:
+        type: string
+      health:
+        type: string
+      imageurl:
+        type: string
+      soil:
+        type: string
+      tfvname:
+        type: string
+      uploadImage:
+        type: string
+      uses:
+        type: string
+    type: object
+  controllers.WebPlant:
+    properties:
+      description:
+        type: string
+      image:
+        type: string
+      name:
+        type: string
+    type: object
+  models.GeneralPlants:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  models.Plant:
+    properties:
+      climate:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      health:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      name:
+        type: string
+      soil:
+        type: string
+      updatedAt:
+        type: string
+      uses:
         type: string
     type: object
   models.Rose:
@@ -61,6 +183,305 @@ info:
   title: Leaflove Mobil API
   version: "1.0"
 paths:
+  /admin/add-plant:
+    post:
+      consumes:
+      - application/json
+      description: Add plant
+      parameters:
+      - description: Post Plant
+        in: body
+        name: PlantPost
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PlantDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Add plant
+      tags:
+      - admin
+  /admin/login:
+    post:
+      consumes:
+      - application/json
+      description: Login Admin
+      parameters:
+      - description: Login Admin
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/PlantApp_controllers_user.UserLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.LRespAdmin'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Admin Login
+      tags:
+      - admin
+  /admin/plant/:plantid/delete:
+    post:
+      consumes:
+      - application/json
+      description: Delete plant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Delete plant
+      tags:
+      - admin
+  /admin/plant/:plantid/update:
+    post:
+      consumes:
+      - application/json
+      description: Update plant
+      parameters:
+      - description: Update Plant
+        in: body
+        name: UpdatePlant
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.PlantDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Update plant
+      tags:
+      - admin
+  /admin/plants:
+    get:
+      consumes:
+      - application/json
+      description: Get plant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plant'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Get plant
+      tags:
+      - admin
+  /mobil/add-favorite:
+    post:
+      consumes:
+      - application/json
+      description: Add Favorite, you need send one parameter in the parameters.
+      parameters:
+      - description: Add Favorite
+        in: body
+        name: fav
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.Fav'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Add Favorite
+      tags:
+      - favorite
+  /mobil/delete-favorite:
+    post:
+      consumes:
+      - application/json
+      description: Delete Favorite
+      parameters:
+      - description: Plant Name
+        in: query
+        name: plant_name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Delete Favorite
+      tags:
+      - favorite
+  /mobil/favorites:
+    get:
+      consumes:
+      - application/json
+      description: Get Favorites by user_id
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.MyFav'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get Favorites
+      tags:
+      - favorite
+  /mobil/general-plants:
+    get:
+      consumes:
+      - application/json
+      description: Get General Plants
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.GeneralPlants'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get General Plants
+      tags:
+      - general_plants
+  /mobil/plant-detail:
+    get:
+      consumes:
+      - application/json
+      description: Get Plant DEtail by plant_user_id
+      parameters:
+      - description: Plant user id
+        in: query
+        name: plant_user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.PlantResult'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get PLant Detail
+      tags:
+      - plant
+  /mobil/plant-upload:
+    post:
+      consumes:
+      - application/json
+      description: Upload Plant Image by base64 parameter
+      parameters:
+      - description: Upload Plant Image
+        in: body
+        name: imageData
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.ImageData'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Plant'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Upload Plant Image
+      tags:
+      - plant
+  /mobil/plants:
+    get:
+      consumes:
+      - application/json
+      description: Get User Plant by user_id for my plants section
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.MyPlant'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      security:
+      - jwt: []
+      summary: Get User Plants
+      tags:
+      - plant
   /mobil/rose:
     get:
       consumes:
@@ -86,7 +507,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get Uset Information by id or nickname
+      description: Get User Information by id or nickname
       parameters:
       - description: User ID
         in: query
@@ -123,7 +544,7 @@ paths:
         name: register
         required: true
         schema:
-          $ref: '#/definitions/controllers.Register'
+          $ref: '#/definitions/PlantApp_controllers_user.Register'
       produces:
       - application/json
       responses:
@@ -145,7 +566,7 @@ paths:
         name: login
         required: true
         schema:
-          $ref: '#/definitions/controllers.UserLogin'
+          $ref: '#/definitions/PlantApp_controllers_user.UserLogin'
       produces:
       - application/json
       responses:
@@ -187,4 +608,25 @@ paths:
       summary: User Logout
       tags:
       - user
+  /web/plants:
+    get:
+      consumes:
+      - application/json
+      description: Web Plants
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.WebPlant'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+      summary: Web Plants
+      tags:
+      - web
 swagger: "2.0"

@@ -3,8 +3,8 @@ package controllers
 import (
 	"PlantApp/database"
 	"PlantApp/models"
-	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -105,10 +105,16 @@ func Login(c *gin.Context) {
 func Logout(c *gin.Context) {
 	userId := c.Query("user_id")
 	db := database.GetDB()
-	fmt.Println("userıd:", userId)
 	if userId == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"message": "please enter a userId.",
+		})
+		return
+	}
+
+	if userId != strconv.Itoa(int(Claims["sub"].(float64))) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "user mismatch.",
 		})
 		return
 	}

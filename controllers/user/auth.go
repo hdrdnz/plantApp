@@ -4,7 +4,6 @@ import (
 	"PlantApp/database"
 	"PlantApp/models"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -37,12 +36,14 @@ func RequireAuth() gin.HandlerFunc {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"message": "user not found.",
 				})
+				c.Abort()
 				return
 			}
 			if err := db.Delete(&userToken).Error; err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{
 					"message": "user not found.",
 				})
+				c.Abort()
 				return
 			}
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -80,7 +81,6 @@ func RequireAuth() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
-			fmt.Println("------claims:", claims)
 			Claims = claims
 			c.Next()
 		} else {

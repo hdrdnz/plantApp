@@ -11,7 +11,7 @@ import (
 // PingExample godoc
 // @Summary Get User Information
 // @Schemes
-// @Description Get Uset Information by id or nickname
+// @Description Get User Information by id or nickname
 // @Tags user
 // @Security jwt
 // @Accept json
